@@ -135,3 +135,5 @@ R 4.6.1: installation and source build succeeded; both regression sections, the 
 Bundled j5gr comparison with extension 0 versus 30: lengths 972.8259 and 972.4576; endpoint displacements 0.7390 and 8.1724; CONDUCTIVITY 0.74, SCORE 100, CLASS 1 in both cases. CRS and original attributes were retained. This checks pipeline operation; it does not establish endpoint accuracy without ground truth.
 
 Source builds used a copy of tracked files with current edits because traversal of the checkout's temporary runtime stalled the direct build. Temporary runtime and planning artifacts are excluded from package distribution.
+
+Fresh independent review found no actionable issues and independently reran the endpoint regressions. The separate concurrent cleanup commit remains on the branch; its cleanup regression also passed. Duplicate-terminal repair and claims of universal endpoint accuracy remain outside this change. No minor findings were deferred.
