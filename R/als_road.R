@@ -96,6 +96,12 @@ measure_road = function(ctg, centerline, dtm = NULL, conductivity = NULL, water 
   #if (!is.null(dtm) & !is.null(conductivity)) stop("'dtm' or 'conductivity' must be NULL", call. = FALSE)
   crs <- sf::st_crs(centerline)
 
+  extension <- param[["extraction"]][["endpoint_extension"]]
+  if (is.null(extension)) extension <- 0
+  if (!is.numeric(extension) || length(extension) != 1L ||
+      !is.finite(extension) || extension < 0)
+    stop("'endpoint_extension' must be a finite, non-negative number", call. = FALSE)
+
   # If the collection is not indexed we throw a warning and even an error if the density is high
   # Without spatial indexation the centerline extraction is terribly long
   # (No warning when called from measure_roads because warning are thrown once only by measure_roads)
@@ -185,8 +191,37 @@ measure_road = function(ctg, centerline, dtm = NULL, conductivity = NULL, water 
     return(new_road)
   }
 
+  # Search beyond the endpoints, then trim before measurement. Failed attempts
+  # fall through to the original extraction and search below.
+  extended <- NULL
+  if (relocate && extension > 0)
+  {
+    coords <- sf::st_coordinates(centerline)[, 1:2]
+    ends <- coords[c(1, nrow(coords)), , drop = FALSE]
+    adjacent <- coords[c(2, nrow(coords) - 1), , drop = FALSE]
+    if (all(rowSums((ends - adjacent)^2) > 0))
+    {
+      extended <- tryCatch({
+        search_centerline <- centerline
+        sf::st_geometry(search_centerline) <- st_extend_line(sf::st_geometry(centerline), extension)
+        las <- extract_road(ctg, search_centerline, param)
+        res <- if (!lidR::is.empty(las))
+          least_cost_path(las, search_centerline, dtm, conductivity, water, param)
+        else NULL
+
+        if (!is.null(res) && isTRUE(is.finite(res$CONDUCTIVITY)) &&
+            isTRUE(res$CONDUCTIVITY > 0))
+          res <- trim_extended_path(res, search_centerline, extension)
+        else res <- NULL
+
+        if (!is.null(res) && as.numeric(sf::st_length(res)) >= length_min)
+          list(las = las, res = res)
+      }, error = function(e) NULL)
+    }
+  }
+
   # Query the roads in a collection of files
-  las <- extract_road(ctg, centerline, param)
+  las <- if (is.null(extended)) extract_road(ctg, centerline, param) else extended$las
 
   # Exit early. This should never happen
   if (lidR::is.empty(las))
@@ -202,7 +237,9 @@ measure_road = function(ctg, centerline, dtm = NULL, conductivity = NULL, water 
   {
     # This is maybe the most important function of the code. It takes the point cloud, the original
     # road, the dtm or conductivity layer, water bodies and param to draw a new accurate line
-    res <- least_cost_path(las, centerline, dtm, conductivity, water, param)
+    res <- if (is.null(extended))
+      least_cost_path(las, centerline, dtm, conductivity, water, param)
+    else extended$res
 
     if (sf::st_geometry_type(res) == "MULTILINESTRING")
       stop("Internal error. A MULTILINESTRING has been returned. Please report", call. = FALSE)

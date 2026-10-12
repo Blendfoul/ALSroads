@@ -5,6 +5,7 @@ extraction = list(
   road_max_width = 30,
   road_buffer = 80,
   section_length = 10,
+  endpoint_extension = 0,
   profile_resolution = 0.5
 )
 
@@ -67,6 +68,13 @@ param = list(
 #' - **road_max_width**: maximum width of a road for metrics measurements
 #' - **road_buffer**: width of a buffer around the road for point-cloud extraction
 #' - **section_length**: length of sections of road for metrics measurements
+#' - **endpoint_extension**: optional distance to extend both ends of the reference road
+#' before point-cloud extraction and realignment, in the projected CRS's linear units.
+#' Defaults to 0 (disabled); a missing value also disables extension. The corrected path
+#' is trimmed by this distance at each end before measurement and smoothing. If the
+#' extended search fails or its trimmed result is unusable, the original search is retried.
+#' CONDUCTIVITY still describes the full search route, including the extensions, and
+#' can therefore affect SCORE and CLASS. Ignored when confidence is 1.
 #' - **profile_resolution**: resolution of the profiles and DTMs for metrics measurements
 #'
 #' **constraint**: parameters to contraint the road relocation step
@@ -94,6 +102,8 @@ param = list(
 #' - **drivable_width_thresholds**:
 #' @examples
 #' str(alsroads_default_parameters)
+#' param <- alsroads_default_parameters
+#' param$extraction$endpoint_extension <- 3 * param$extraction$section_length
 #' @export
 #' @md
 alsroads_default_parameters = param

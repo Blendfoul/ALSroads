@@ -27,6 +27,13 @@ chunks of equal sizes such as no one is more than this size.
 \item \strong{road_max_width}: maximum width of a road for metrics measurements
 \item \strong{road_buffer}: width of a buffer around the road for point-cloud extraction
 \item \strong{section_length}: length of sections of road for metrics measurements
+\item \strong{endpoint_extension}: optional distance to extend both ends of the reference road
+before point-cloud extraction and realignment, in the projected CRS's linear units.
+Defaults to 0 (disabled); a missing value also disables extension. The corrected path
+is trimmed by this distance at each end before measurement and smoothing. If the
+extended search fails or its trimmed result is unusable, the original search is retried.
+CONDUCTIVITY still describes the full search route, including the extensions, and
+can therefore affect SCORE and CLASS. Ignored when confidence is 1.
 \item \strong{profile_resolution}: resolution of the profiles and DTMs for metrics measurements
 }
 
@@ -60,5 +67,7 @@ all the points are expected to be at 0. This is the tolerance.
 }
 \examples{
 str(alsroads_default_parameters)
+param <- alsroads_default_parameters
+param$extraction$endpoint_extension <- 3 * param$extraction$section_length
 }
 \keyword{datasets}
