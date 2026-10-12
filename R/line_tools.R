@@ -59,6 +59,42 @@ st_extend_line <- function(line, distance, end = "BOTH")
 }
 
 
+#' Orient and trim a path computed from an extended reference line
+#' @noRd
+trim_extended_path <- function(path, reference, distance)
+{
+  if (!inherits(path, "sf") || nrow(path) != 1L ||
+      !isTRUE(sf::st_geometry_type(path) == "LINESTRING") ||
+      isTRUE(sf::st_is_empty(path)) || !isTRUE(sf::st_is_valid(path)))
+    return(NULL)
+
+  length <- as.numeric(sf::st_length(path))
+  if (!is.finite(length) || length <= 2 * distance)
+    return(NULL)
+
+  coords <- sf::st_coordinates(path)
+  ends <- coords[c(1, nrow(coords)), 1:2]
+  ref <- sf::st_coordinates(reference)
+  ref <- ref[c(1, nrow(ref)), 1:2]
+  if (sum((ends - ref)^2) > sum((ends[2:1, ] - ref)^2))
+  {
+    dim <- class(sf::st_geometry(path)[[1]])[1]
+    coords <- coords[, colnames(coords) %in% c("X", "Y", "Z", "M"), drop = FALSE]
+    sf::st_geometry(path) <- sf::st_sfc(
+      sf::st_linestring(coords[nrow(coords):1, , drop = FALSE], dim = dim),
+      crs = sf::st_crs(path))
+  }
+
+  sf::st_geometry(path) <- lwgeom::st_linesubstring(sf::st_geometry(path),
+                                                distance / length, 1 - distance / length)
+  if (!isTRUE(sf::st_geometry_type(path) == "LINESTRING") ||
+      isTRUE(sf::st_is_empty(path)) || !isTRUE(sf::st_is_valid(path)))
+    return(NULL)
+
+  return(path)
+}
+
+
 #' Get point from distance on a line
 #'
 #' It must be noted that due floating point precision limitation,
