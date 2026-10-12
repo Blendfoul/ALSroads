@@ -588,28 +588,13 @@ make_bridge <- function(roads, tb_node_bridge)
   pos_2 <- tb_node_bridge[2,][["pos"]]
   coord_1 <- sf::st_coordinates(roads[pos_1,])[,-3]
   coord_2 <- sf::st_coordinates(roads[pos_2,])[,-3]
-  rev_1 <- FALSE
-  rev_2 <- FALSE
-
   # Sometimes, reversing direction of one of the
   # two segments is needed in order to obtain a
   # "continuous flow" of the vertices
-  if (!end_1)
-  {
-    rev_1 <- TRUE
-    coord_1 <- apply(coord_1, 2, rev)
-    if (end_2)
-    {
-      rev_2 <- TRUE
-      coord_2 <- apply(coord_2, 2, rev)
-    }
-  } else {
-    if (end_2)
-    {
-      rev_2 <- TRUE
-      coord_2 <- apply(coord_2, 2, rev)
-    }
-  }
+  rev_1 <- !end_1
+  rev_2 <- end_2
+  if (rev_1) coord_1 <- apply(coord_1, 2, rev)
+  if (rev_2) coord_2 <- apply(coord_2, 2, rev)
 
   # Mean coordinates of the corrected road node on the bridge
   pt_junction <- apply(tb_node_bridge[,c("X","Y")], 2, mean) |>

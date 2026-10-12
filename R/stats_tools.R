@@ -6,12 +6,6 @@ ma <- function(x, n = 3)
   as.numeric(stats::filter(x, rep(1 / n, n), sides = 2))
 }
 
-percent <- function(x)
-{
-  if (length(x) == 0L) return(0)
-  sum(x)/length(x)
-}
-
 #' First order derivative
 #' @noRd
 deriv = function(x,y)
@@ -67,15 +61,4 @@ activation <- function(x, th, mode = c("thresholds", "piecewise-linear"), asc = 
 
   o[] <- round(y,3)
   return(o)
-}
-
-activation2 <- function(r)
-{
-  u <- quantile(r[], probs = seq(0,1, length.out = 12), na.rm = TRUE)
-  y <- r
-  y[] <- findInterval(y[], u)
-  ymin = min(y[], na.rm = TRUE)
-  ymax = max(y[], na.rm = TRUE)
-  y <- 1-(y-ymin)/(ymax-ymin)
-  y
 }

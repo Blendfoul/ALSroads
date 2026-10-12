@@ -119,7 +119,6 @@ rasterize_conductivity2.LAS <- function(las, dtm = NULL, water = NULL, param = a
     th <- c(0.25,0.35)
     #sigma_i <- template2m
     sigma_i <- activation(irange, th, "piecewise-linear", asc = FALSE)
-    #sigma_i = activation2(irange)
 
     if (display) raster::plot(sigma_i, col = viridis::viridis(20), main = "Conductivity intensity")
     verbose("   - Intensity conductivity map\n")
@@ -366,71 +365,6 @@ density_lp_by_flightline <- function(las, res)
   #plot(ans, col = heat.colors(50))
   return(raster::raster(ans))
 }
-
-low_points_by_flightline <- function(nlas, res, th = 2)
-{
-  .N <- PointSourceID <- NULL
-
-  z1 <- 0.5
-  z2 <- 3
-  res <- terra::rast(res)
-  ids <- unique(nlas$PointSourceID)
-
-  if (length(ids) == 1)
-  {
-    tmp <- lidR::filter_poi(nlas, Z > z1, Z < z2)
-    ans = lidR:::rasterize_fast(tmp, res, 0, "count", pkg = "terra")
-    return(raster::raster(ans > th))
-  }
-
-  ans <- vector("list", 0)
-  for (i in ids) {
-    psi <- lidR::filter_poi(nlas, PointSourceID == i, Z > z1, Z < z2)
-    d <- lidR:::rasterize_fast(psi, res, 0, "count", pkg = "terra")
-    d[is.na(d)] = 0
-    ans[[as.character(i)]] = d <= 3
-  }
-
-  ans = terra::rast(ans)
-  #plot(ans, col = heat.colors(50))
-  ans <- terra::app(ans, fun = min, na.rm = TRUE)
-  #plot(ans, col = heat.colors(50))
-  return(raster::raster(ans))
-}
-
-chm_by_flightline <- function(nlas, res)
-{
-  .N <- PointSourceID <- NULL
-
-  res <- terra::rast(res)
-  ids <- unique(nlas$PointSourceID)
-
-  if (length(ids) == 1)
-  {
-    ans = rasterize_canopy(nlas, res, p2r())
-    return(raster::raster(ans))
-  }
-
-  ans <- vector("list", 0)
-  for (i in ids) {
-    psi <- lidR::filter_poi(nlas, PointSourceID == i)
-    d <- rasterize_canopy(psi, res, lidR::p2r())
-    ans[[as.character(i)]] = d
-  }
-
-  ans = terra::rast(ans)
-  ans = terra::mask(ans, terra::vect(water), inverse = T)
-  #plot(ans, col = height.colors(50))
-  ans = terra::stretch(ans, minv = 0)
-  #plot(ans, col = height.colors(50))
-  ans <- terra::app(ans, fun = min, na.rm = TRUE)
-  #plot(ans, col = height.colors(50))
-  ans =  ans - min(ans[], na.rm = TRUE)
-  #plot(ans, col = height.colors(50))
-
-  return(raster::raster(ans))
-}
-
 
 rasterize_intensityrange <- function(las, res)
 {

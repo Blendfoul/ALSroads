@@ -279,32 +279,19 @@ find_path = function(trans, centerline, A, B, param)
   return(path)
 }
 
-sobel <- function(img, ker = 3) UseMethod("sobel", img)
+sobel <- function(img) UseMethod("sobel", img)
 
-sobel.RasterLayer <- function(img, ker = 3)
+sobel.RasterLayer <- function(img)
 {
   slop <- raster::as.matrix(img)
-  img[] <- sobel.matrix(slop, ker)
+  img[] <- sobel.matrix(slop)
   img
 }
 
-sobel.matrix <- function(img, ker = 3)
+sobel.matrix <- function(img)
 {
   # define horizontal and vertical Sobel kernel
-  if (ker == 3)
-    Shoriz <- matrix(c(1, 2, 1, 0, 0, 0, -1, -2, -1), nrow = 3)
-
-  if (ker == 5)
-  {
-    A = 2*sqrt(2)
-    B = sqrt(5)
-    C = sqrt(2)
-    Shoriz <- matrix(c(2,2,4,2,2,
-                       1,1,2,1,1,
-                       0,0,0,0,0,
-                       -1,-1,-2,-1,-1,
-                       -2,-2,-4,-2,-2), nrow = 5, byrow = TRUE)
-  }
+  Shoriz <- matrix(c(1, 2, 1, 0, 0, 0, -1, -2, -1), nrow = 3)
   Svert <- t(Shoriz)
   nas <- is.na(img)
   img[nas] <- 0

@@ -373,24 +373,14 @@ road_class0 <- function(centerline)
 
 road_class4 <- function(centerline)
 {
-  new_road <- centerline
+  new_road <- road_class0(centerline)
   new_road$ROADWIDTH     <- 0
   new_road$DRIVABLEWIDTH <- 0
   new_road$PERCABOVEROAD <- 100
   new_road$SHOULDERS     <- 0
-  new_road$SINUOSITY     <- NA
   new_road$CONDUCTIVITY  <- 0
   new_road$SCORE         <- 0
   new_road$CLASS         <- 4
-
-  # reorder the columns so outputs are consistent even if exiting early
-  ngeom <- attr(new_road, "sf_column")
-  names <- names(new_road)
-  names <- names[names != ngeom]
-  names <- append(names, ngeom)
-  data.table::setcolorder(new_road, names)
-
-  new_road <- rename_sf_column(new_road, centerline)
 
   return(new_road)
 }

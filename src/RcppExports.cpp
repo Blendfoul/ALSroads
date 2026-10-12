@@ -22,17 +22,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// ffsd
-double ffsd(SEXP x);
-RcppExport SEXP _ALSroads_ffsd(SEXP xSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< SEXP >::type x(xSEXP);
-    rcpp_result_gen = Rcpp::wrap(ffsd(x));
-    return rcpp_result_gen;
-END_RCPP
-}
 // anisotropic_diffusion
 IntegerMatrix anisotropic_diffusion(Rcpp::IntegerMatrix image, unsigned int iterations, double lambda, double k);
 RcppExport SEXP _ALSroads_anisotropic_diffusion(SEXP imageSEXP, SEXP iterationsSEXP, SEXP lambdaSEXP, SEXP kSEXP) {
@@ -77,7 +66,6 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_ALSroads_fsd", (DL_FUNC) &_ALSroads_fsd, 1},
-    {"_ALSroads_ffsd", (DL_FUNC) &_ALSroads_ffsd, 1},
     {"_ALSroads_anisotropic_diffusion", (DL_FUNC) &_ALSroads_anisotropic_diffusion, 4},
     {"_ALSroads_quadtree", (DL_FUNC) &_ALSroads_quadtree, 1},
     {"_ALSroads_filter_orectangle_with_index", (DL_FUNC) &_ALSroads_filter_orectangle_with_index, 6},

@@ -150,19 +150,3 @@ plot_road_metrics = function(chemin, road_metrics, segment_metrics)
   #graphics::box()
 }
 
-add_road_insert = function(chemin, i, p1, p2, col)
-{
-  graphics::title(paste("segment", i))
-  opar = graphics::par( fig = c(.7, .95, .7, .95), mar=.1+c(0,0,0,0), new = TRUE )
-  plot(sf::st_geometry(chemin))
-  graphics::points(p1[1], p1[2], cex = 0.5, pch = 19, col = col)
-  graphics::points(p2[1], p2[2], cex = 0.5, pch = 19, col = col)
-  graphics::box()
-  graphics::par(opar)
-}
-
-plot2D = function(las)
-{
-  plot(las$Y, las$Z, asp = 1, cex = 0.2, col = (las$Classification == 2) + 1, ylim = c(min(c(-7,las$Z)), max(15, max(las$Z))))
-}
-

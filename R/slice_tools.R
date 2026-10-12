@@ -66,33 +66,16 @@ slice_metrics = function(nlas_slice, param)
   n    <- lidR::npoints(road)
 
   # Coverage extra metrics we want to compute in addition to the width
-  pground         <- NA   # Percentage of ground points (useless?)
   pzabove05       <- 0    # Percentage of point between 0.5 and below 5 (P)
   pzabove2        <- 100  # Percentage of point between 2 and below 5 (useless?)
-  pground_drive   <- NA   # The same but within the drivable zone (useless?)
-  pzabove05_drive <- 0
-  pzabove2_drive  <- 100
 
   if (n > 0)
   {
     n5            <- sum(road$Z < 5)
     nabove2       <- sum(road$Z > 2 & road$Z < 5)
     nabove05      <- sum(road$Z > 0.5 & road$Z < 5)
-    nground       <- sum(road$Classification == lidR::LASGROUND)
     pzabove2      <- round(nabove2 / n5 * 100, 1)
     pzabove05     <- round(nabove05 / n5 * 100, 1)
-    pground       <- round(nground / n * 100, 1)
-
-    # Compute some metrics within the boundaries of the drivable road
-    road          <- lidR::filter_poi(road, Y > drivable_edges$edges[1], Y < drivable_edges$edges[2])
-    n             <- lidR::npoints(road)
-    n5            <- sum(road$Z < 5)
-    nabove2       <- sum(road$Z > 2 & road$Z < 5)
-    nabove05      <- sum(road$Z > 0.5 & road$Z < 5)
-    nground       <- sum(road$Classification == lidR::LASGROUND)
-    pzabove2_drive  <- round(nabove2 / n5 * 100, 1)
-    pzabove05_drive <- round(nabove05 / n5 * 100, 1)
-    pground_drive   <- round(nground / n * 100, 1)
   }
 
   # Compute the elevation of the road
@@ -123,8 +106,6 @@ slice_metrics = function(nlas_slice, param)
     drivable_width = drivable_width,
     pzabove05 = pzabove05,
     pzabove2 = pzabove2,
-    pzabove05_drive = pzabove05_drive,
-    pzabove2_drive = pzabove2_drive,
     xroad = xyc[,1],
     yroad = xyc[,2],
     zroad = zroad,
